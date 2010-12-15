@@ -21,11 +21,12 @@ class xmmsv_t is OpaquePointer;
 class XMMS2::Client {
     has xmmsc_connection_t $!connection;
 
-    method new(Str $client_name = 'p6xmms2', Str $path = %*ENV<XMMS_PATH>) {
+    method new(Str $client_name = 'perl6-XMMS2', Str $path = self.default-path) {
         self.bless(*, :$client_name, :$path);
     }
 
     method play returns Bool {
+        # TODO: code explodes somewhere on this line, .ok() apparently never gets reached
         my Bool $success = self!ok: xmmsc_playback_start($!connection);
 
         warn 'Playback start failed!' if not $success;
@@ -33,11 +34,15 @@ class XMMS2::Client {
         return $success;
     }
 
+    # Default path settings when calling code hasn't specified one
+    method default-path returns Str {
+        return %*ENV<XMMS_PATH> || "unix:///tmp/xmms-ipc-{qx[whoami].trim}";
+    }
+
     # Check for error status from anything that returns an xmmsc_result_t.
     # Also frees the result value.
     method !ok(xmmsc_result_t $result) returns Bool {
         my $command_status = xmmsc_result_get_value($result);
-
         my $failed = xmmsv_is_error($command_status);
 
         if $failed {
@@ -51,7 +56,9 @@ class XMMS2::Client {
 
     # FIXME: libxmmsclient has this default $path, but you have to pass a C NULL value as the path
     # to make it use it, which I don't know how to do using zavolaj yet.
-    submethod BUILD(Str $client_name, Str $path = "unix:///tmp/xmms2-ipc-{qx[whoami].trim}") {
+    submethod BUILD(Str $client_name, Str $path) {
+        # FIXME: this can return NULL in an out-of-memory condition. No matter how implausible that
+        # might sound, it should still be checked...
         $!connection = xmmsc_init($client_name);
 
         xmmsc_connect($!connection, $path)

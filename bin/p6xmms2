@@ -7,11 +7,5 @@ multi sub MAIN('play') {
 }
 
 sub client {
-    # This is a hack because I don't know how to write "C NULL"
-    my $path = (
-        %*ENV<XMMS_PATH>,
-        "unix:///tmp/xmms-ipc-{qx[whoami].trim}"
-    ).first: *.so;
-
-    return XMMS2::Client.new(:client-name<p6xmms2>, :$path);
+    return XMMS2::Client.new(:client-name<p6xmms2>);
 }
