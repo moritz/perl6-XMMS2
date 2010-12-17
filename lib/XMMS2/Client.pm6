@@ -4,18 +4,17 @@ use XMMS2::Connection;
 
 #####
 # The user-interfaceable part
-class XMMS2::Client {
-    has $!connection;
+class XMMS2::Client;
+has $!connection;
 
-    method new(Str $client_name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
-        self.bless(*, :$client_name, :$path);
-    }
+method new(Str $client_name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
+    self.bless(*, :$client_name, :$path);
+}
 
-    method play returns Bool {
-        $!connection.play;
-    }
+method play returns Bool {
+    $!connection.play;
+}
 
-    submethod BUILD(Str $client_name, Str $path) {
-        $!connection = XMMS2::Connection.new($client_name, $path);
-    }
-};
+submethod BUILD(Str $client_name, Str $path) {
+    $!connection = XMMS2::Connection.new($client_name, $path);
+}
