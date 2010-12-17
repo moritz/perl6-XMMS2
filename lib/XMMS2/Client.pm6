@@ -1,6 +1,6 @@
 use v6;
 use NativeCall;
-use XMMS2::Client::Connection;
+use XMMS2::Connection;
 
 #####
 # The user-interfaceable part
@@ -16,6 +16,6 @@ class XMMS2::Client {
     }
 
     submethod BUILD(Str $client_name, Str $path) {
-        $!connection = XMMS2::Client::Connection.new($client_name, $path);
+        $!connection = XMMS2::Connection.new($client_name, $path);
     }
 };
