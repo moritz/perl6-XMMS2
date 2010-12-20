@@ -7,8 +7,8 @@ use XMMS2::Connection;
 class XMMS2::Client;
 has $!connection;
 
-method new(Str $client_name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
-    self.bless(*, :$client_name, :$path);
+method new(Str $client-name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
+    self.bless(*, :$client-name, :$path);
 }
 
 method play returns Bool {
@@ -35,6 +35,6 @@ method next returns Bool {
     ...
 }
 
-submethod BUILD(Str $client_name, Str $path) {
-    $!connection = XMMS2::Connection.new($client_name, $path);
+submethod BUILD(Str $client-name, Str $path) {
+    $!connection = XMMS2::Connection.new($client-name, $path);
 }
