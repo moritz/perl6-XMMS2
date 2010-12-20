@@ -29,9 +29,8 @@ method new(Str $client_name, Str $path = %*ENV<XMMS_PATH>) {
     self.bless(*, :$client_name, :$path);
 }
 
-# TODO: there's async API, but this doesn't do that yet.
-method play(:$synchronous!) returns Bool {
-    my $result = 
+# TODO: XMMS' async API not supported yet
+method play(:$sync!) returns Bool {
     my Bool $success = XMMS2::Result.new(:result => xmmsc_playback_start($!connection)).ok;
 
     warn 'Playback start failed!' if not $success;
@@ -40,8 +39,8 @@ method play(:$synchronous!) returns Bool {
 }
 
 submethod BUILD(Str $client_name, Str $path) {
-    # FIXME: this can return NULL in an out-of-memory condition. No matter how implausible that
-    # might sound, it should still be checked...
+    # FIXME: xmmsc_init can return NULL, on out-of-memory.
+    # That might sound stupid but it's still rude to ignore errors.
     $!connection = xmmsc_init($client_name);
 
     xmmsc_connect($!connection, $path || pir::null__P())

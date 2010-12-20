@@ -15,6 +15,26 @@ method play returns Bool {
     $!connection.play;
 }
 
+method pause returns Bool {
+    ...
+}
+
+method toggle returns Bool {
+    ...
+}
+
+method stop returns Bool {
+    ...
+}
+
+method prev returns Bool {
+    ...
+}
+
+method next returns Bool {
+    ...
+}
+
 submethod BUILD(Str $client_name, Str $path) {
     $!connection = XMMS2::Connection.new($client_name, $path);
 }

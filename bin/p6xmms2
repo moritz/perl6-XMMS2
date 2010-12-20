@@ -2,10 +2,23 @@
 use v6;
 use XMMS2::Client;
 
-multi sub MAIN('play') {
-    client.play;
+# Chop out new() and reserved names like BUILD()
+my @commands = XMMS2::Client.^methods(:local)».Str.grep(none /^['new'|<[A..Z]>+]$/);
+
+multi sub MAIN(Str $command) {
+    # I already tried doing this in the signature, but when it doesn't match Rakudo barfs.
+    unless $command ~~ any @commands {
+        say "'$command'?";
+        USAGE;
+        exit 1;
+    }
+
+    XMMS2::Client.new(:client-name<p6xmms2>).$command;
 }
 
-sub client {
-    return XMMS2::Client.new(:client-name<p6xmms2>);
+sub USAGE {
+    say "Usage: $*PROGRAM_NAME <command>";
+    say;
+    say "Available commands:";
+    say "    $_" for @commands;
 }
