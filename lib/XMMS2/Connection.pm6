@@ -25,8 +25,8 @@ sub xmmsc_get_last_error(xmmsc_connection_t --> Str)
 class XMMS2::Connection;
 has xmmsc_connection_t $.connection;
 
-method new(Str $client_name, Str $path = %*ENV<XMMS_PATH>) {
-    self.bless(*, :$client_name, :$path);
+method new(Str $client-name, Str $path = %*ENV<XMMS_PATH>) {
+    self.bless(*, :$client-name, :$path);
 }
 
 # TODO: XMMS' async API not supported yet
@@ -38,10 +38,10 @@ method play(:$sync!) returns Bool {
     return $success;
 }
 
-submethod BUILD(Str $client_name, Str $path) {
+submethod BUILD(Str $client-name, Str $path) {
     # FIXME: xmmsc_init can return NULL, on out-of-memory.
     # That might sound stupid but it's still rude to ignore errors.
-    $!connection = xmmsc_init($client_name);
+    $!connection = xmmsc_init($client-name);
 
     xmmsc_connect($!connection, $path || pir::null__P())
         or die "Connecting via '$path' failed with error: {xmmsc_get_last_error($!connection)}";
