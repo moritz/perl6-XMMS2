@@ -16,23 +16,23 @@ method play returns Bool {
 }
 
 method pause returns Bool {
-    ...
+    ???
 }
 
 method toggle returns Bool {
-    ...
+    ???
 }
 
 method stop returns Bool {
-    ...
+    ???
 }
 
 method prev returns Bool {
-    ...
+    ???
 }
 
 method next returns Bool {
-    ...
+    ???
 }
 
 submethod BUILD(Str $client-name, Str $path) {

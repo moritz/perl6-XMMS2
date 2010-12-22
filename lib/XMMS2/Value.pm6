@@ -5,10 +5,12 @@ use NativeCall;
 class xmmsv_t is OpaquePointer { };
 
 # Native functions
-sub xmmsv_is_error(xmmsv_t --> Int)
+sub xmmsv_is_error(xmmsv_t)
+    returns Int
     is native('libxmmsclient') { ... }
 
-sub xmmsv_get_error(xmmsv_t, Str $error is rw --> Int)
+sub xmmsv_get_error(xmmsv_t, Str $error is rw)
+    returns Int
     is native('libxmmsclient') { ... }
 
 # Wrapper around an XMMS2 value struct

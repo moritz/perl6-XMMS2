@@ -9,7 +9,8 @@ class xmmsc_result_t is OpaquePointer { };
 sub xmmsc_result_wait(xmmsc_result_t)
     is native('libxmmsclient') { ... }
 
-sub xmmsc_result_get_value(xmmsc_result_t --> xmmsv_t)
+sub xmmsc_result_get_value(xmmsc_result_t)
+    returns xmmsv_t
     is native('libxmmsclient') { ... }
 
 sub xmmsc_result_unref(xmmsc_result_t)
@@ -20,9 +21,9 @@ class XMMS2::Result;
 has xmmsc_result_t $.result;
 
 # Check whether this result is an error status
-method ok(:$verbose!) returns Bool {
+method ok(Bool $verbose = True) returns Bool {
     xmmsc_result_wait($!result);
-    my $status = XMMS2::Value.new: xmmsc_result_get_value($!result);
+    my $status = XMMS2::Value.new(value => xmmsc_result_get_value($!result));
     my $failed = ?$status.error;
 
     if $verbose and $failed {

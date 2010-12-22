@@ -6,19 +6,23 @@ use XMMS2::Result;
 class xmmsc_connection_t is OpaquePointer { };
 
 # Native functions
-sub xmmsc_playback_start(xmmsc_connection_t --> xmmsc_result_t)
+sub xmmsc_playback_start(xmmsc_connection_t)
+    returns xmmsc_result_t
     is native('libxmmsclient') { ... }
 
-sub xmmsc_init(Str $clientname --> xmmsc_connection_t)
+sub xmmsc_init(Str $clientname)
+    returns xmmsc_connection_t
     is native('libxmmsclient') { ... }
 
-sub xmmsc_connect(xmmsc_connection_t, Str $path --> Int)
+sub xmmsc_connect(xmmsc_connection_t, Str $path)
+    returns Int
     is native('libxmmsclient') { ... }
 
 sub xmmsc_unref(xmmsc_connection_t)
     is native('libxmmsclient') { ... }
 
-sub xmmsc_get_last_error(xmmsc_connection_t --> Str)
+sub xmmsc_get_last_error(xmmsc_connection_t)
+    returns Str
     is native('libxmmsclient') { ... }
 
 # Wrapper around a connection pointer
@@ -30,7 +34,7 @@ method new(Str $client-name, Str $path = %*ENV<XMMS_PATH>) {
 }
 
 # TODO: XMMS' async API not supported yet
-method play(:$sync!) returns Bool {
+method play returns Bool {
     my Bool $success = XMMS2::Result.new(:result => xmmsc_playback_start($!connection)).ok;
 
     warn 'Playback start failed!' if not $success;

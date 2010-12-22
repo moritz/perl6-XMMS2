@@ -13,7 +13,7 @@ multi sub MAIN(Str $command) {
         exit 1;
     }
 
-    XMMS2::Client.new(:client-name<p6xmms2>).$command;
+    XMMS2::Client.new(:client-name<p6xmms2>)."$command"();
 }
 
 sub USAGE {
