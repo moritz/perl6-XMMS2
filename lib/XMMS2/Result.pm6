@@ -18,7 +18,7 @@ sub xmmsc_result_unref(xmmsc_result_t)
 
 # Wrapper around a result object
 class XMMS2::Result;
-has xmmsc_result_t $.result;
+has xmmsc_result_t $!result;
 
 # Check whether this result is an error status
 method ok(Bool $verbose = True) returns Bool {

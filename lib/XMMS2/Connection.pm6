@@ -35,7 +35,7 @@ method new(Str $client-name, Str $path = %*ENV<XMMS_PATH>) {
 
 # TODO: XMMS' async API not supported yet
 method play returns Bool {
-    my Bool $success = XMMS2::Result.new(:result => xmmsc_playback_start($!connection)).ok;
+    my Bool $success = XMMS2::Result.new(result => xmmsc_playback_start($!connection)).ok;
 
     warn 'Playback start failed!' if not $success;
 

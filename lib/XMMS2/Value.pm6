@@ -15,7 +15,7 @@ sub xmmsv_get_error(xmmsv_t, Str $error is rw)
 
 # Wrapper around an XMMS2 value struct
 class XMMS2::Value;
-has $!value;
+has xmmsv_t $!value;
 
 method error returns Str {
     return Str unless xmmsv_is_error($!value);
