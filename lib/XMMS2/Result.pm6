@@ -20,17 +20,15 @@ sub xmmsc_result_unref(xmmsc_result_t)
 class XMMS2::Result;
 has xmmsc_result_t $!result;
 
-# Check whether this result is an error status
-method ok(Bool $verbose = True) returns Bool {
+# Returns false if this result contains an error status
+method Bool {
+    return ?self.get_value;
+}
+
+# Get result value
+method get_value {
     xmmsc_result_wait($!result);
-    my $status = XMMS2::Value.new(value => xmmsc_result_get_value($!result));
-    my $failed = ?$status.error;
-
-    if $verbose and $failed {
-        warn $status.error;
-    }
-
-    return not $failed;
+    return XMMS2::Value.new: value => xmmsc_result_get_value($!result);
 }
 
 submethod DESTROY {

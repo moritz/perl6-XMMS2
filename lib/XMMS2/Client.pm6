@@ -12,7 +12,7 @@ method new(Str $client-name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
 }
 
 method play returns Bool {
-    $!connection.play;
+    return ?$!connection.play;
 }
 
 method pause returns Bool {

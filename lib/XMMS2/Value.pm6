@@ -17,9 +17,15 @@ sub xmmsv_get_error(xmmsv_t, Str $error is rw)
 class XMMS2::Value;
 has xmmsv_t $!value;
 
-method error returns Str {
-    return Str unless xmmsv_is_error($!value);
+# Returns false if this is an error value
+method Bool {
+    return !xmmsv_is_error($!value);
+}
 
-    xmmsv_get_error($!value, my $error-str);
-    return $error-str;
+# Get the error string from a value
+method error_string returns Str {
+    my Str $error;
+    xmmsv_get_error($!value, $error) if !self;
+
+    return $error;
 }
