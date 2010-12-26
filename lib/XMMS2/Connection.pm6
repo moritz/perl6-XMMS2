@@ -6,7 +6,19 @@ use XMMS2::Result;
 class xmmsc_connection_t is OpaquePointer { };
 
 # Native functions
+sub xmmsc_playback_stop(xmmsc_connection_t)
+    returns xmmsc_result_t
+    is native('libxmmsclient') { ... }
+
 sub xmmsc_playback_start(xmmsc_connection_t)
+    returns xmmsc_result_t
+    is native('libxmmsclient') { ... }
+
+sub xmmsc_playback_pause(xmmsc_connection_t)
+    returns xmmsc_result_t
+    is native('libxmmsclient') { ... }
+
+sub xmmsc_playback_current_id(xmmsc_connection_t)
     returns xmmsc_result_t
     is native('libxmmsclient') { ... }
 
@@ -33,8 +45,26 @@ method new(Str $client-name, Str $path = %*ENV<XMMS_PATH>) {
     self.bless(*, :$client-name, :$path);
 }
 
-method play returns XMMS2::Result {
+method playback_stop returns XMMS2::Result {
+    return XMMS2::Result.new: result => xmmsc_playback_stop($!connection);
+}
+
+method playback_start returns XMMS2::Result {
     return XMMS2::Result.new: result => xmmsc_playback_start($!connection);
+}
+
+method playback_pause returns XMMS2::Result {
+    return XMMS2::Result.new: result => xmmsc_playback_pause($!connection);
+}
+
+method playback_toggle returns XMMS2::Result {
+    return ???
+        ?? XMMS2::Result.new: result => self.playback_pause;
+        !! XMMS2::Result.new: result => self.playback_start;
+}
+
+method playback_current_id returns XMMS2::Result {
+    return XMMS2::Result.new: result => xmmsc_playback_current_id($!connection);
 }
 
 submethod BUILD(Str $client-name, Str $path) {

@@ -1,5 +1,4 @@
 use v6;
-use NativeCall;
 use XMMS2::Connection;
 
 #####
@@ -12,19 +11,19 @@ method new(Str $client-name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
 }
 
 method play returns Bool {
-    return ?$!connection.play;
+    return ?$!connection.playback_start;
 }
 
 method pause returns Bool {
-    ???
+    return ?$!connection.playback_pause;
 }
 
 method toggle returns Bool {
-    ???
+    return ?$!connection.playback_toggle;
 }
 
 method stop returns Bool {
-    ???
+    return ?$!connection.playback_stop;
 }
 
 method prev returns Bool {
@@ -33,6 +32,10 @@ method prev returns Bool {
 
 method next returns Bool {
     ???
+}
+
+method current returns Int {
+    return $!connection.playback_current_id;
 }
 
 submethod BUILD(Str $client-name, Str $path) {

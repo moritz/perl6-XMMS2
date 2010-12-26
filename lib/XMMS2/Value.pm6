@@ -13,6 +13,10 @@ sub xmmsv_get_error(xmmsv_t, Str $error is rw)
     returns Int
     is native('libxmmsclient') { ... }
 
+sub xmmsv_get_int(xmmsv_t, Int $value is rw)
+    returns Int
+    is native('libxmmsclient') { ... }
+
 # Wrapper around an XMMS2 value struct
 class XMMS2::Value;
 has xmmsv_t $!value;
@@ -22,10 +26,19 @@ method Bool {
     return !xmmsv_is_error($!value);
 }
 
+method Int {
+    if xmmsv_get_int($!value, my Int $i) {
+        return $i;
+    }
+
+    return Int;
+}
+
 # Get the error string from a value
 method error_string returns Str {
-    my Str $error;
-    xmmsv_get_error($!value, $error) if !self;
+    if !self and xmmsv_get_error($!value, my Str $error) {
+        return $error;
+    }
 
-    return $error;
+    return Str;
 }

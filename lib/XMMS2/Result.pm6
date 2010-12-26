@@ -16,13 +16,17 @@ sub xmmsc_result_get_value(xmmsc_result_t)
 sub xmmsc_result_unref(xmmsc_result_t)
     is native('libxmmsclient') { ... }
 
-# Wrapper around a result object
+# Wrapper around a result object, which in turn is just a wrapper around a value...
 class XMMS2::Result;
 has xmmsc_result_t $!result;
 
 # Returns false if this result contains an error status
 method Bool {
-    return ?self.get_value;
+    return self.get_value.Bool;
+}
+
+method Int {
+    return self.get_value.Int;
 }
 
 # Get result value
