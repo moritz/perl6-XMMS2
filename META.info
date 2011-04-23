@@ -1,0 +1,7 @@
+{
+    "name":         "XMMS2",
+    "version":      "*",
+    "description":  "Perl 6 bindings and stuff for XMMS2",
+    "depends":      ["zavolaj"],
+    "source-url":   "git://github.com/flussence/perl6-XMMS2.git"
+}
