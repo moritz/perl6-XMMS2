@@ -22,7 +22,7 @@ sub xmmsc_playback_current_id(xmmsc_connection_t)
     returns xmmsc_result_t
     is native('libxmmsclient') { ... }
 
-sub xmmsc_init(Str $clientname)
+sub xmmsc_init(Str $client-name)
     returns xmmsc_connection_t
     is native('libxmmsclient') { ... }
 
@@ -72,6 +72,8 @@ submethod BUILD(Str $client-name, Str $path) {
     # That might sound stupid but it's still rude to ignore errors.
     $!connection = xmmsc_init($client-name);
 
+    # NULL instead of a path string makes the lib pick a sane default
+    # FIXME: null__P doesn't work in current versions of zavolaj
     xmmsc_connect($!connection, $path || pir::null__P())
         or die "Connecting via '$path' failed with error: {xmmsc_get_last_error($!connection)}";
 }
