@@ -11,7 +11,7 @@ class XMMS2::Client {
     }
 
     submethod BUILD(Str :$client-name, Str :$path?) {
-        $!connection = XMMS2::Connection.new($client-name, $path);
+        $!connection .= new($client-name, $path);
     }
 
     method play returns Bool {

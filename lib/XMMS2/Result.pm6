@@ -2,8 +2,7 @@ use v6;
 use NativeCall;
 use XMMS2::Value;
 
-# Result struct from a command
-class xmmsc_result_t is OpaquePointer { };
+# TODO: should probably be a lexical class in XMMS2::Connection
 
 # Native functions
 sub xmmsc_result_wait(OpaquePointer $xmmsc_result_t)
@@ -18,7 +17,11 @@ sub xmmsc_result_unref(OpaquePointer $xmmsc_result_t)
 
 # Wrapper around a result object, which in turn is just a wrapper around a value...
 class XMMS2::Result {
-    has OpaquePointer $!result; # xmmsc_result_t
+    has OpaquePointer $!xmmsc_result_t;
+
+    method new(OpaquePointer :$result) {
+        self.bless(*, xmmsc_result_t => $result);
+    }
 
     # Returns false if this result contains an error status
     method Bool {
@@ -31,11 +34,11 @@ class XMMS2::Result {
 
     # Get result value
     method get_value {
-        xmmsc_result_wait($!result);
-        return XMMS2::Value.new: value => xmmsc_result_get_value($!result);
+        xmmsc_result_wait($!xmmsc_result_t);
+        return XMMS2::Value.new: value => xmmsc_result_get_value($!xmmsc_result_t);
     }
 
     submethod DESTROY {
-        xmmsc_result_unref($!result);
+        xmmsc_result_unref($!xmmsc_result_t);
     }
 }
