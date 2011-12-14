@@ -45,7 +45,7 @@ class XMMS2::Connection {
     submethod BUILD(Str :$client-name, Str :$path?) {
         # FIXME: xmmsc_init can return NULL, on out-of-memory.
         # That might sound stupid but it's still rude to ignore errors.
-        $!xmmsc_connection_t := xmmsc_init($client-name);
+        $!xmmsc_connection_t = xmmsc_init($client-name);
 
         # NULL $path instead of a string makes the lib pick a sane default
         xmmsc_connect($!xmmsc_connection_t, $path // %*ENV<XMMS_PATH> // Str)
