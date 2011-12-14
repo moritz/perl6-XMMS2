@@ -11,9 +11,9 @@ unless %*ENV<XMMS_PATH> {
     exit 1;
 }
 
-my $xmms2;
+my XMMS2::Client $xmms2;
 
-unless lives_ok { $xmms2 = XMMS2::Client.new(:client-name<test>) }, 'Connect' {
+unless lives_ok { $xmms2 .= new(:client-name<test>) }, 'Connect' {
     skip_rest("Couldn't connect");
     exit 1;
 }

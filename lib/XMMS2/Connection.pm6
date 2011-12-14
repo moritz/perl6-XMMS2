@@ -6,78 +6,79 @@ use XMMS2::Result;
 class xmmsc_connection_t is OpaquePointer { };
 
 # Native functions
-sub xmmsc_playback_stop(xmmsc_connection_t)
-    returns xmmsc_result_t
-    is native('libxmmsclient') { ... }
+sub xmmsc_playback_stop(OpaquePointer $xmmsc_connection_t)
+    returns OpaquePointer #xmmsc_result_t
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_playback_start(xmmsc_connection_t)
-    returns xmmsc_result_t
-    is native('libxmmsclient') { ... }
+sub xmmsc_playback_start(OpaquePointer $xmmsc_connection_t)
+    returns OpaquePointer #xmmsc_result_t
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_playback_pause(xmmsc_connection_t)
-    returns xmmsc_result_t
-    is native('libxmmsclient') { ... }
+sub xmmsc_playback_pause(OpaquePointer $xmmsc_connection_t)
+    #returns xmmsc_result_t
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_playback_current_id(xmmsc_connection_t)
-    returns xmmsc_result_t
-    is native('libxmmsclient') { ... }
+sub xmmsc_playback_current_id(OpaquePointer $xmmsc_connection_t)
+    #returns xmmsc_result_t
+    is native('libxmmsclient.so') { ... }
 
 sub xmmsc_init(Str $client-name)
-    returns xmmsc_connection_t
-    is native('libxmmsclient') { ... }
+    returns OpaquePointer # xmmsc_connection_t
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_connect(xmmsc_connection_t, Str $path)
+sub xmmsc_connect(OpaquePointer $xmmsc_connection_t, Str $path)
     returns Int
-    is native('libxmmsclient') { ... }
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_unref(xmmsc_connection_t)
-    is native('libxmmsclient') { ... }
+sub xmmsc_unref(OpaquePointer $xmmsc_connection_t)
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsc_get_last_error(xmmsc_connection_t)
+sub xmmsc_get_last_error(OpaquePointer $xmmsc_connection_t)
     returns Str
-    is native('libxmmsclient') { ... }
+    is native('libxmmsclient.so') { ... }
 
 # Wrapper around a connection pointer
-class XMMS2::Connection;
-has xmmsc_connection_t $.connection;
+class XMMS2::Connection {
+    has OpaquePointer $!xmmsc_connection_t;
 
-method new(Str $client-name, Str $path = %*ENV<XMMS_PATH>) {
-    self.bless(*, :$client-name, :$path);
-}
+    method new(Str $client-name, Str $path?) {
+        self.bless(*, :$client-name, :$path);
+    }
 
-method playback_stop returns XMMS2::Result {
-    return XMMS2::Result.new: result => xmmsc_playback_stop($!connection);
-}
+    submethod BUILD(Str :$client-name, Str :$path?) {
+        # FIXME: xmmsc_init can return NULL, on out-of-memory.
+        # That might sound stupid but it's still rude to ignore errors.
+        $!xmmsc_connection_t = xmmsc_init($client-name);
 
-method playback_start returns XMMS2::Result {
-    return XMMS2::Result.new: result => xmmsc_playback_start($!connection);
-}
+        # NULL $path instead of a string makes the lib pick a sane default
+        xmmsc_connect($!connection, $path // %*ENV<XMMS_PATH> // Str)
+            or die "Connecting via '$path' failed with error: {xmmsc_get_last_error($!connection)}";
+    }
 
-method playback_pause returns XMMS2::Result {
-    return XMMS2::Result.new: result => xmmsc_playback_pause($!connection);
-}
+    method playback_stop returns XMMS2::Result {
+        return XMMS2::Result.new: result => xmmsc_playback_stop($!connection);
+    }
 
-method playback_toggle returns XMMS2::Result {
-    return ???
-        ?? XMMS2::Result.new: result => self.playback_pause;
-        !! XMMS2::Result.new: result => self.playback_start;
-}
+    method playback_start returns XMMS2::Result {
+        return XMMS2::Result.new: result => xmmsc_playback_start($!connection);
+    }
 
-method playback_current_id returns XMMS2::Result {
-    return XMMS2::Result.new: result => xmmsc_playback_current_id($!connection);
-}
+    method playback_pause returns XMMS2::Result {
+        return XMMS2::Result.new: result => xmmsc_playback_pause($!connection);
+    }
 
-submethod BUILD(Str $client-name, Str $path) {
-    # FIXME: xmmsc_init can return NULL, on out-of-memory.
-    # That might sound stupid but it's still rude to ignore errors.
-    $!connection = xmmsc_init($client-name);
+    method playback_toggle returns XMMS2::Result {
+        return ???
+            ?? XMMS2::Result.new: result => self.playback_pause;
+            !! XMMS2::Result.new: result => self.playback_start;
+    }
 
-    # NULL instead of a path string makes the lib pick a sane default
-    # FIXME: null__P doesn't work in current versions of zavolaj
-    xmmsc_connect($!connection, $path || pir::null__P())
-        or die "Connecting via '$path' failed with error: {xmmsc_get_last_error($!connection)}";
-}
+    method playback_current_id returns XMMS2::Result {
+        return XMMS2::Result.new: result => xmmsc_playback_current_id($!connection);
+    }
 
-submethod DESTROY {
-    xmmsc_unref($!connection);
+    submethod DESTROY {
+        note 'destroy called on Connection';
+        xmmsc_unref($!connection);
+    }
 }

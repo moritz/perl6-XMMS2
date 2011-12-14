@@ -5,40 +5,41 @@ use NativeCall;
 class xmmsv_t is OpaquePointer { };
 
 # Native functions
-sub xmmsv_is_error(xmmsv_t)
+sub xmmsv_is_error(OpaquePointer $xmmsv_t)
     returns Int
-    is native('libxmmsclient') { ... }
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsv_get_error(xmmsv_t, Str $error is rw)
+sub xmmsv_get_error(OpaquePointer $xmmsv_t, Str $error is rw)
     returns Int
-    is native('libxmmsclient') { ... }
+    is native('libxmmsclient.so') { ... }
 
-sub xmmsv_get_int(xmmsv_t, Int $value is rw)
+sub xmmsv_get_int(OpaquePointer $xmmsv_t, Int $value is rw)
     returns Int
-    is native('libxmmsclient') { ... }
+    is native('libxmmsclient.so') { ... }
 
 # Wrapper around an XMMS2 value struct
-class XMMS2::Value;
-has xmmsv_t $!value;
+class XMMS2::Value {
+    has xmmsv_t $!value;
 
-# Returns false if this is an error value
-method Bool {
-    return !xmmsv_is_error($!value);
-}
-
-method Int {
-    if xmmsv_get_int($!value, my Int $i) {
-        return $i;
+    # Returns false if this is an error value
+    method Bool {
+        return !xmmsv_is_error($!value);
     }
 
-    return Int;
-}
+    method Int {
+        if xmmsv_get_int($!value, my Int $i) {
+            return $i;
+        }
 
-# Get the error string from a value
-method error_string returns Str {
-    if !self and xmmsv_get_error($!value, my Str $error) {
-        return $error;
+        return Int;
     }
 
-    return Str;
+    # Get the error string from a value
+    method error_string returns Str {
+        if !self and xmmsv_get_error($!value, my Str $error) {
+            return $error;
+        }
+
+        return Str;
+    }
 }

@@ -3,41 +3,42 @@ use XMMS2::Connection;
 
 #####
 # The user-interfaceable part
-class XMMS2::Client;
-has $!connection;
+class XMMS2::Client {
+    has XMMS2::Connection $!connection;
 
-method new(Str $client-name = 'perl6-XMMS2', Str $path = %*ENV<XMMS_PATH>) {
-    self.bless(*, :$client-name, :$path);
-}
+    method new(Str $client-name = 'perl6-XMMS2', Str $path?) {
+        self.bless(*, :$client-name, :$path);
+    }
 
-method play returns Bool {
-    return ?$!connection.playback_start;
-}
+    submethod BUILD(Str :$client-name, Str :$path?) {
+        $!connection = XMMS2::Connection.new($client-name, $path);
+    }
 
-method pause returns Bool {
-    return ?$!connection.playback_pause;
-}
+    method play returns Bool {
+        return ?$!connection.playback_start;
+    }
 
-method toggle returns Bool {
-    return ?$!connection.playback_toggle;
-}
+    method pause returns Bool {
+        return ?$!connection.playback_pause;
+    }
 
-method stop returns Bool {
-    return ?$!connection.playback_stop;
-}
+    method toggle returns Bool {
+        return ?$!connection.playback_toggle;
+    }
 
-method prev returns Bool {
-    ???
-}
+    method stop returns Bool {
+        return ?$!connection.playback_stop;
+    }
 
-method next returns Bool {
-    ???
-}
+    method prev returns Bool {
+        ???
+    }
 
-method current returns Int {
-    return $!connection.playback_current_id;
-}
+    method next returns Bool {
+        ???
+    }
 
-submethod BUILD(Str $client-name, Str $path) {
-    $!connection = XMMS2::Connection.new($client-name, $path);
+    method current returns Int {
+        return $!connection.playback_current_id;
+    }
 }
