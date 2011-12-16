@@ -1,44 +1,54 @@
 use v6;
 use NativeCall;
 
-# XMMS2 variant value
-class xmmsv_t is OpaquePointer { };
+#= XMMS2 value struct, which is more or less a typeless scalar
+class xmmsv_t is repr('CPointer') { }
 
-# Native functions
-sub xmmsv_is_error(xmmsv_t)
-    returns Int
-    is native('libxmmsclient') { ... }
+#= Wrapper around an XMMS2 value
+class XMMS2::Value {
+    # Native functions for Value
+    sub xmmsv_is_error(xmmsv_t)
+        returns Int
+        is native('libxmmsclient.so') { ... }
 
-sub xmmsv_get_error(xmmsv_t, Str $error is rw)
-    returns Int
-    is native('libxmmsclient') { ... }
+    sub xmmsv_get_error(xmmsv_t, Str $error is rw)
+        returns Int
+        is native('libxmmsclient.so') { ... }
 
-sub xmmsv_get_int(xmmsv_t, Int $value is rw)
-    returns Int
-    is native('libxmmsclient') { ... }
+    sub xmmsv_get_int(xmmsv_t, Int $value is rw)
+        returns Int
+        is native('libxmmsclient.so') { ... }
 
-# Wrapper around an XMMS2 value struct
-class XMMS2::Value;
-has xmmsv_t $!value;
+    has xmmsv_t $!value;
 
-# Returns false if this is an error value
-method Bool {
-    return !xmmsv_is_error($!value);
-}
-
-method Int {
-    if xmmsv_get_int($!value, my Int $i) {
-        return $i;
+    method new(xmmsv_t $value) {
+        self.bless(*, :$value);
     }
 
-    return Int;
-}
-
-# Get the error string from a value
-method error_string returns Str {
-    if !self and xmmsv_get_error($!value, my Str $error) {
-        return $error;
+    # FIXME: do not want
+    submethod BUILD(xmmsv_t :$value) {
+        $!value = $value;
     }
 
-    return Str;
+    #= Returns false if this is an error value
+    method Bool {
+        return !xmmsv_is_error($!value);
+    }
+
+    method Int {
+        if xmmsv_get_int($!value, my Int $i) {
+            return $i;
+        }
+
+        return Int;
+    }
+
+    #= Gets the error string from a value, if defined
+    method error_string returns Str {
+        if !self and xmmsv_get_error($!value, my Str $error) {
+            return $error;
+        }
+
+        return Str;
+    }
 }

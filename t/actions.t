@@ -11,25 +11,29 @@ unless %*ENV<XMMS_PATH> {
     exit 1;
 }
 
-my $xmms2;
+my XMMS2::Client $xmms2;
 
-unless lives_ok { $xmms2 = XMMS2::Client.new(:client-name<test>) }, 'Connect' {
+unless lives_ok { $xmms2 .= new(:client-name<test>) }, 'Connect' {
     skip_rest("Couldn't connect");
     exit 1;
 }
 
 ok $xmms2.stop, 'Stopping playback';
-say 'Will now play for 2s, pause 2s, play 2s then stop';
+diag 'XMMS2 should now be stopped. Will now play for 2s, pause 2s, play 2s then stop';
 
 ok $xmms2.play, 'Play';
+diag 'XMMS2 should now be playing';
 sleep 2;
 
 ok $xmms2.pause, 'Pause';
+diag 'XMMS2 should now be paused';
 sleep 2;
 
 ok $xmms2.play, 'Resuming playback';
+diag 'XMMS2 should now be playing again';
 sleep 2;
 
 ok $xmms2.stop, 'Stop';
+diag 'XMMS2 should now be stopped; end of test';
 
 # vim: set ft=perl6 :
