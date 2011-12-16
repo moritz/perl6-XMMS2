@@ -1,82 +1,136 @@
 use v6;
 use NativeCall;
-use XMMS2::Result;
+use XMMS2::Value;
 
-# Native functions
-sub xmmsc_playback_stop(OpaquePointer $xmmsc_connection_t)
-    returns OpaquePointer #xmmsc_result_t
-    is native('libxmmsclient.so') { ... }
+#= An xmms2d connection handle
+class xmmsc_connection_t is repr('CPointer') { }
 
-sub xmmsc_playback_start(OpaquePointer $xmmsc_connection_t)
-    returns OpaquePointer #xmmsc_result_t
-    is native('libxmmsclient.so') { ... }
+#= All commands sent to the server return a result handle
+class xmmsc_result_t is repr('CPointer') { }
 
-sub xmmsc_playback_pause(OpaquePointer $xmmsc_connection_t)
-    #returns xmmsc_result_t
-    is native('libxmmsclient.so') { ... }
-
-sub xmmsc_playback_current_id(OpaquePointer $xmmsc_connection_t)
-    #returns xmmsc_result_t
-    is native('libxmmsclient.so') { ... }
-
-sub xmmsc_init(Str $client-name)
-    returns OpaquePointer # xmmsc_connection_t
-    is native('libxmmsclient.so') { ... }
-
-sub xmmsc_connect(OpaquePointer $xmmsc_connection_t, Str $path)
-    returns Int
-    is native('libxmmsclient.so') { ... }
-
-sub xmmsc_unref(OpaquePointer $xmmsc_connection_t)
-    is native('libxmmsclient.so') { ... }
-
-sub xmmsc_get_last_error(OpaquePointer $xmmsc_connection_t)
-    returns Str
-    is native('libxmmsclient.so') { ... }
-
-# Wrapper around a connection pointer
+#= Wrapper around a connection pointer
 class XMMS2::Connection {
-    has OpaquePointer $!xmmsc_connection_t;
+    #= Wrapper around a result handle
+    my class Result {
+        # Native functions for Result
+        #= Blocks until a command completes
+        sub xmmsc_result_wait(xmmsc_result_t)
+            is native('libxmmsclient.so') { ... }
+
+        sub xmmsc_result_get_value(xmmsc_result_t)
+            returns xmmsv_t
+            is native('libxmmsclient.so') { ... }
+
+        sub xmmsc_result_unref(xmmsc_result_t)
+            is native('libxmmsclient.so') { ... }
+
+        has xmmsc_result_t $!result;
+        has Bool $!received = False;
+
+        method new(xmmsc_result_t $result) {
+            self.bless(*, :$result);
+        }
+
+        # FIXME: new() breaks without this, but I don't see why I have to be this verbose.
+        submethod BUILD(xmmsc_result_t :$result) {
+            $!result = $result;
+        }
+
+        #= Returns false if this result contains an error status
+        method Bool {
+            return self.get_value.Bool;
+        }
+
+        method Int {
+            return self.get_value.Int;
+        }
+
+        # Get result value
+        method get_value {
+            unless $!received {
+                xmmsc_result_wait($!result);
+                $!received = True;
+            }
+            return XMMS2::Value.new: xmmsc_result_get_value($!result);
+        }
+
+        submethod DESTROY {
+            xmmsc_result_unref($!result);
+        }
+    }
+
+    # Native functions for Connection
+    sub xmmsc_playback_stop(xmmsc_connection_t)
+        returns xmmsc_result_t
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_playback_start(xmmsc_connection_t)
+        returns xmmsc_result_t
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_playback_pause(xmmsc_connection_t)
+        returns xmmsc_result_t
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_playback_current_id(xmmsc_connection_t)
+        returns xmmsc_result_t
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_init(Str $client-name)
+        returns xmmsc_connection_t
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_connect(xmmsc_connection_t, Str $path)
+        returns Int
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_unref(xmmsc_connection_t)
+        is native('libxmmsclient.so') { ... }
+
+    sub xmmsc_get_last_error(xmmsc_connection_t)
+        returns Str
+        is native('libxmmsclient.so') { ... }
+
+    has xmmsc_connection_t $!connection;
 
     method new(Str $client-name, Str $path?) {
         self.bless(*, :$client-name, :$path);
     }
 
     submethod BUILD(Str :$client-name, Str :$path?) {
-        # FIXME: xmmsc_init can return NULL, on out-of-memory.
-        # That might sound stupid but it's still rude to ignore errors.
-        $!xmmsc_connection_t = xmmsc_init($client-name);
+        $!connection = xmmsc_init($client-name)
+            or die 'xmmsc_init returned null, out of memory?';
 
-        # NULL $path instead of a string makes the lib pick a sane default
-        xmmsc_connect($!xmmsc_connection_t, $path // %*ENV<XMMS_PATH> // Str)
-            or die xmmsc_get_last_error($!xmmsc_connection_t)\
+        #= A NULL instead of a string makes the lib pick a sane default
+        xmmsc_connect($!connection, $path // %*ENV<XMMS_PATH> // Str)
+            or die xmmsc_get_last_error($!connection)\
                     .fmt(qq{Connecting via "$path" failed with error: %s});
     }
 
-    method playback_stop returns XMMS2::Result {
-        return XMMS2::Result.new: result => xmmsc_playback_stop($!xmmsc_connection_t);
+    method playback_stop returns Result {
+        return Result.new: xmmsc_playback_stop($!connection);
     }
 
-    method playback_start returns XMMS2::Result {
-        return XMMS2::Result.new: result => xmmsc_playback_start($!xmmsc_connection_t);
+    method playback_start returns Result {
+        return Result.new: xmmsc_playback_start($!connection);
     }
 
-    method playback_pause returns XMMS2::Result {
-        return XMMS2::Result.new: result => xmmsc_playback_pause($!xmmsc_connection_t);
+    method playback_pause returns Result {
+        return Result.new: xmmsc_playback_pause($!connection);
     }
 
-    method playback_toggle returns XMMS2::Result {
+    method playback_current_id returns Result {
+        return Result.new: xmmsc_playback_current_id($!connection);
+    }
+
+    method playback_toggle returns Result {
         return ???
-            ?? XMMS2::Result.new: result => self.playback_pause;
-            !! XMMS2::Result.new: result => self.playback_start;
-    }
-
-    method playback_current_id returns XMMS2::Result {
-        return XMMS2::Result.new: result => xmmsc_playback_current_id($!xmmsc_connection_t);
+            ?? self.playback_pause;
+            !! self.playback_start;
     }
 
     submethod DESTROY {
-        note 'destroy called on Connection';
-        xmmsc_unref($!xmmsc_connection_t);
+        note 'object destructors work now!';
+        xmmsc_unref($!connection);
     }
 }
