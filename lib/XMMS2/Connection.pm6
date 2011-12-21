@@ -17,24 +17,16 @@ class XMMS2::Connection is repr('CPointer') {
         my sub xmmsc_result_unref(Result)
             is native('libxmmsclient.so') { ... }
 
-        #= Returns false if this result contains an error status
-        method Bool {
-            return self.get_value.Bool;
-        }
-
-        method Int {
-            return self.get_value.Int;
-        }
+        method Bool { self.get_value.Bool } #= false if error
+        method Int { self.get_value.Int }
 
         # Get result value
-        method get_value {
+        method get_value returns XMMS2::Value {
             xmmsc_result_wait(self);
             return xmmsc_result_get_value(self);
         }
 
-        submethod DESTROY {
-            xmmsc_result_unref(self);
-        }
+        submethod DESTROY { xmmsc_result_unref(self) }
     }
 
     # Native functions for Connection
@@ -74,23 +66,10 @@ class XMMS2::Connection is repr('CPointer') {
         return $connection;
     }
 
-    method playback_stop returns Result {
-        return xmmsc_playback_stop(self);
-    }
+    method playback_stop returns Result { xmmsc_playback_stop(self) }
+    method playback_start returns Result { xmmsc_playback_start(self) }
+    method playback_pause returns Result { xmmsc_playback_pause(self) }
+    method playback_current_id returns Result { xmmsc_playback_current_id(self) }
 
-    method playback_start returns Result {
-        return xmmsc_playback_start(self);
-    }
-
-    method playback_pause returns Result {
-        return xmmsc_playback_pause(self);
-    }
-
-    method playback_current_id returns Result {
-        return xmmsc_playback_current_id(self);
-    }
-
-    submethod DESTROY {
-        xmmsc_unref(self);
-    }
+    submethod DESTROY { xmmsc_unref(self) }
 }
