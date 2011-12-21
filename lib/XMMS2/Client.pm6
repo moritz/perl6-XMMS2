@@ -2,7 +2,7 @@ use v6;
 use XMMS2::Connection;
 
 #####
-# The user-interfaceable part
+# A bit of syntactic sugar over the raw API
 class XMMS2::Client {
     has XMMS2::Connection $!connection;
 
@@ -22,12 +22,12 @@ class XMMS2::Client {
         return ?$!connection.playback_pause;
     }
 
-    method toggle returns Bool {
-        return ?$!connection.playback_toggle;
-    }
-
     method stop returns Bool {
         return ?$!connection.playback_stop;
+    }
+
+    method toggle returns Bool {
+        ???
     }
 
     method prev returns Bool {

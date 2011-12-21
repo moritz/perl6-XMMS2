@@ -3,16 +3,13 @@ use NativeCall;
 
 #= XMMS2 value struct xmmsv_t, which is more or less a typeless scalar
 class XMMS2::Value is repr('CPointer') {
-    sub xmmsv_is_error(XMMS2::Value)
-        returns Int
+    my sub xmmsv_is_error(XMMS2::Value) returns Int
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsv_get_error(XMMS2::Value, Str $error is rw)
-        returns Int
+    my sub xmmsv_get_error(XMMS2::Value, Str $error is rw) returns Int
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsv_get_int(XMMS2::Value, Int $value is rw)
-        returns Int
+    my sub xmmsv_get_int(XMMS2::Value, Int $value is rw) returns Int
         is native('libxmmsclient.so') { ... }
 
     #= Returns false if this is an error value

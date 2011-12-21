@@ -8,14 +8,13 @@ class XMMS2::Connection is repr('CPointer') {
     #= All commands sent to the server return a result handle (xmmsc_result_t)
     my class Result is repr('CPointer') {
         #= Blocks until a command completes
-        sub xmmsc_result_wait(Result)
+        my sub xmmsc_result_wait(Result)
             is native('libxmmsclient.so') { ... }
 
-        sub xmmsc_result_get_value(Result)
-            returns XMMS2::Value
+        my sub xmmsc_result_get_value(Result) returns XMMS2::Value
             is native('libxmmsclient.so') { ... }
 
-        sub xmmsc_result_unref(Result)
+        my sub xmmsc_result_unref(Result)
             is native('libxmmsclient.so') { ... }
 
         #= Returns false if this result contains an error status
@@ -39,35 +38,28 @@ class XMMS2::Connection is repr('CPointer') {
     }
 
     # Native functions for Connection
-    sub xmmsc_playback_stop(XMMS2::Connection)
-        returns Result
+    my sub xmmsc_init(Str $client-name) returns XMMS2::Connection
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_playback_start(XMMS2::Connection)
-        returns Result
+    my sub xmmsc_connect(XMMS2::Connection, Str $path) returns Int
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_playback_pause(XMMS2::Connection)
-        returns Result
+    my sub xmmsc_get_last_error(XMMS2::Connection) returns Str
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_playback_current_id(XMMS2::Connection)
-        returns Result
+    my sub xmmsc_playback_stop(XMMS2::Connection) returns Result
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_init(Str $client-name)
-        returns XMMS2::Connection
+    my sub xmmsc_playback_start(XMMS2::Connection) returns Result
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_connect(XMMS2::Connection, Str $path)
-        returns Int
+    my sub xmmsc_playback_pause(XMMS2::Connection) returns Result
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_unref(XMMS2::Connection)
+    my sub xmmsc_playback_current_id(XMMS2::Connection) returns Result
         is native('libxmmsclient.so') { ... }
 
-    sub xmmsc_get_last_error(XMMS2::Connection)
-        returns Str
+    my sub xmmsc_unref(XMMS2::Connection)
         is native('libxmmsclient.so') { ... }
 
     method open(Str $client-name, Str $path?) returns XMMS2::Connection {
@@ -96,12 +88,6 @@ class XMMS2::Connection is repr('CPointer') {
 
     method playback_current_id returns Result {
         return xmmsc_playback_current_id(self);
-    }
-
-    method playback_toggle returns Result {
-        return ???
-            ?? self.playback_pause();
-            !! self.playback_start();
     }
 
     submethod DESTROY {
