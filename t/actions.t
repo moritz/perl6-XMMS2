@@ -13,7 +13,7 @@ unless %*ENV<XMMS_PATH> {
 
 my XMMS2::Client $xmms2;
 
-unless lives_ok { $xmms2 .= new(:client-name<test>) }, 'Connect' {
+unless lives_ok { $xmms2 .= new(:client-name<perl6xmms2test>) }, 'Connect' {
     skip_rest("Couldn't connect");
     exit 1;
 }
