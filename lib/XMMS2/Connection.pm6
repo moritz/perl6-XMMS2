@@ -60,7 +60,7 @@ class XMMS2::Connection is repr('CPointer') {
 
         #= A NULL instead of a string makes the lib pick a sane default
         xmmsc_connect($connection, $path // %*ENV<XMMS_PATH> // Str)
-            or die xmmsc_get_last_error($connection)\
+            or fail xmmsc_get_last_error($connection)\
                     .fmt(qq{Connecting via "$path" failed with error: %s});
 
         return $connection;
