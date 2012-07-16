@@ -2,8 +2,8 @@
 use v6;
 use XMMS2::Client;
 
-# Chop out new() and reserved names like BUILD()
-my @commands = XMMS2::Client.^methods(:local)».Str.grep(none /^['new'|<[A..Z]>+]$/);
+# Chop out standard objecty things
+my @commands = XMMS2::Client.^methods(:local)».Str.grep(none <new BUILD>);
 
 multi sub MAIN(Str $command) {
     # I already tried doing this in the signature, but when it doesn't match Rakudo barfs.
