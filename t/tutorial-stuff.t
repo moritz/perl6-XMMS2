@@ -14,7 +14,7 @@ unless %*ENV<XMMS_PATH> {
 my XMMS2::Connection $xmms2;
 
 unless lives_ok { $xmms2 .= open('perl6xmms2test') }, 'Connect to xmms2' {
-    skip_rest("Couldn't connect");
+    skip_rest("Connection failed: {$!}");
     exit 1;
 }
 

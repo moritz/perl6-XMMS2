@@ -54,14 +54,13 @@ class XMMS2::Connection is repr('CPointer') {
     my sub xmmsc_unref(XMMS2::Connection)
         is native('libxmmsclient.so') { ... }
 
-    method open(Str $client-name, Str $path?) returns XMMS2::Connection {
+    method open(Str $client-name, Str $path?) {
         my XMMS2::Connection $connection = xmmsc_init($client-name)
             or die 'xmmsc_init returned null, out of memory?';
 
         #= A NULL instead of a string makes the lib pick a sane default
         xmmsc_connect($connection, $path // %*ENV<XMMS_PATH> // Str)
-            or fail xmmsc_get_last_error($connection)\
-                    .fmt(qq{Connecting via "$path" failed with error: %s});
+            or die xmmsc_get_last_error($connection);
 
         return $connection;
     }
