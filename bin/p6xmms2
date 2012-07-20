@@ -2,8 +2,9 @@
 use v6;
 use XMMS2::Client;
 
-# Chop out standard objecty things
-my @commands = XMMS2::Client.^methods(:local)».Str.grep(none <new BUILD>);
+#= Gets all the param-less methods - no new() or BUILD().
+#  This is 2 and not 0 because methods have an implied :(self, *%_).
+my @commands = XMMS2::Client.^methods(:local).grep(*.signature.params == 2);
 
 multi sub MAIN(Str $command) {
     # I already tried doing this in the signature, but when it doesn't match Rakudo barfs.
