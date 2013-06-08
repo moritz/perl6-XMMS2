@@ -8,7 +8,7 @@ plan 6;
 unless %*ENV<XMMS_PATH> {
     warn 'Set XMMS_PATH if you really want to run this, it\'ll mess with your playback';
     skip_rest("\%*ENV<XMMS_PATH> required for this test");
-    exit 1;
+    exit;
 }
 
 my XMMS2::Client $xmms2;
