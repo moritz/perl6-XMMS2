@@ -2,7 +2,7 @@
 use Test;
 use XMMS2::Connection;
 
-plan 1;
+plan 2;
 
 # Perform all the actions in xmms2-tutorial/c/. We use the raw XMMS2::Connection
 # here, XMMS2::Client is tested in actions.t.
