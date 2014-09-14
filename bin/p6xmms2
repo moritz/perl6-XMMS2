@@ -19,7 +19,7 @@ multi sub MAIN(Str $command) {
 
 sub USAGE {
     say "Usage: $*PROGRAM_NAME <command>";
-    say;
+    say '';
     say "Available commands:";
     say "    $_" for @commands;
 }
