@@ -7,7 +7,7 @@
     "provides"      : {
         "XMMS2:Connection"  : "lib/XMMS2/Connection.pm",
         "XMMS2:Client"      : "lib/XMMS2/Client.pm",
-        "XMMS2:Value"       : "lib/XMMS2/Value.pm",
+        "XMMS2:Value"       : "lib/XMMS2/Value.pm"
     },
     "source-url"    : "git://github.com/flussence/perl6-XMMS2.git"
 }
